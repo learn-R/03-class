@@ -18,6 +18,7 @@ data <- read_dta(url("https://www.ine.cl/docs/default-source/encuesta-suplementa
 
 # 3. Procesamiento --------------------------------------------------------
 
+#a6 razones para ausencia del trabajo
 #a6_otro otras razones de ausencia del trabajo
 #ing_t_d Total ingresos sueldos y salarios
 #nivel Nivel educacional más alto aprobado
@@ -28,6 +29,7 @@ data <- read_dta(url("https://www.ine.cl/docs/default-source/encuesta-suplementa
 
 proc <- data %>% 
   select(id = idrph,
+         a6,
          a6_otro,
          nivel,
          ingresos = ing_t_d,
