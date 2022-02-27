@@ -14,44 +14,51 @@ pacman::p_load(tidyverse,
 
 # 2. Cargar datos ---------------------------------------------------------
 
-data <- read_sav(url("https://www.ine.cl/docs/default-source/seguridad-ciudadana/bbdd/2020/base-usuario-17-enusc-2020-sav.sav?sfvrsn=5352415b_4&download=true"))
+data <- read_dta(url("https://www.ine.cl/docs/default-source/encuesta-suplementaria-de-ingresos/bbdd/stata_esi/2020/esi-2020---personas.dta?sfvrsn=7a4b0e2b_4&download=true"))
 
 # 3. Procesamiento --------------------------------------------------------
 
-#rph_ID (identificador)
-#rph_idgen (identidad de género)
-#rph_edad (edad)
-#VA_DC (victimización agregada delitos consumados) (TRUE/F)
-
+#a6_otro otras razones de ausencia del trabajo
+#ing_t_d Total ingresos sueldos y salarios
+#nivel Nivel educacional más alto aprobado
+#b7a_1 empleador cotiza en sistema previsional o de pension (T/F)
+#idrph identificador unico personas 
 
 # a) Selección y transformación de datos ----------------------------------
 
 proc <- data %>% 
-  select(id = rph_ID,
-         idgen = rph_idgen,
-         edad = rph_edad,
-         cise = rph_p11,
-         VA_DC) %>% 
-  mutate(idgen = as.numeric(.$idgen)) %>% 
+  select(id = idrph,
+         a6_otro,
+         nivel,
+         ingresos = ing_t_d,
+         afp = b7a_1) %>% 
+  mutate(nivel = as.numeric(.$nivel)) %>% 
   mutate(id = as.character(.$id),
-         idgen = as_factor(car::recode(.$idgen, 
-                                       c("1 = 'Masculino';
-                                         2 = 'Femenino';
-                                         c(3,4) = 'Trans/Otro';
-                                         c(88, 96, 99) = NA"))),
-         edad = as.numeric(.$edad),
-         VA_DC = ifelse(VA_DC == 1, T, F))
+         nivel = as_factor(car::recode(.$nivel, 
+                                       c("c(0, 1, 2) = 'Menos que basica/primaria';
+                                         3 = 'Basica o primaria';
+                                         c(4,5, 6) = 'Media o humanidades';
+                                         c(7, 8) = 'Tecnico profesional';
+                                         c(9, 10,11, 12) = 'Universitaria o mas';
+                                         c(14, 88, 99, 902) = NA")),
+                           as.factor = T,
+                           levels = c('Menos que basica/primaria',
+                                      'Basica o primaria',
+                                      'Media o humanidades',
+                                      'Tecnico profesional',
+                                      'Universitaria o mas')),
+         afp = ifelse(afp == 1, T, F))
 
 
 # b) Etiquetado -----------------------------------------------------------
 
 proc$id <- set_label(proc$id, "Identificador de individuo")
-proc$idgen <- set_label(proc$idgen, "Identidad de género")
-proc$edad <- set_label(proc$edad, "Edad")
-proc$cise <- set_label(proc$cise, "Situación de empleo")
-proc$VA_DC <- set_label(proc$VA_DC, "Victimizacion agregada de delitos consumados")
+proc$a6_otro <- set_label(proc$a6_otro, "Otras razones de ausencia al trabajo")
+proc$nivel <- set_label(proc$nivel, "Nivel educacional mas alto aprobado")
+proc$ingresos <- set_label(proc$ingresos, "Ingresos por sueldos y salarios")
+proc$afp <- set_label(proc$afp, "Empleador cotiza en prevision (AFP)")
 
 # 4. Exportar datos ----------------------------------------------------------
 
-saveRDS(proc, "output/data/enusc_proc.rds")
+saveRDS(proc, "output/data/esi_proc.rds")
 
