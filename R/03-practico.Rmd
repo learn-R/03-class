@@ -1,0 +1,152 @@
+---
+title: "03: Tipos de datos"
+author: "Nicolás Godoy Márquez"
+output: html_document
+---
+
+# 0. Objetivo del práctico
+
+El objetivo de este práctico es presentar una introducción a los tipos de datos que podemos encontrarnos trabajando con R. Esto constituye uno de los pilares fundamentales para el correcto procesamiento, análisis y presentación de resultados. 
+
+##  Materiales de la sesión
+
+En este práctico trabajaremos con datos de la **Encuesta Suplementaria de Ingresos (*ESI*)** desarrollada por el **Instituto Nacional de Estadísticas** en el año 2020. Esta es "un módulo complementario que se aplica dentro de la Encuesta Nacional de Empleo (ENE) (...) Su objetivo principal es caracterizar los ingresos laborales de las personas que son clasificadas como ocupadas en la ENE y otras fuentes de ingresos de los hogares", contando con un diseño muestral probabilístico, estratificado y bietápico. Pueden encontrar más información [aquí](https://www.ine.cl/estadisticas/sociales/ingresos-y-gastos/encuesta-suplementaria-de-ingresos). 
+
+## 1. Tipos de datos 
+
+### a) ¿Qué son?
+
+Tanto en R como en la mayoría de lenguajes de programación, contamos con datos de *diversos tipos*, en razón de los cuales podemos ejecutar determinados procedimientos de tratamiento o análisis. 
+
+Los tipos de datos están **íntimamente relacionados con el *nivel de medición* de las variables** a las cuales corresponden. Como habrán aprendido en sus cursos de estadística, la teoría de los niveles de medición contempla cuatro de ellos: 
+
+1. **Nominal**: para variables categóricas o cualitativas. Los números asignados permiten dividir los datos en diferentes grupos, sin la asignación de un orden específico para las categorías entre las cuales se dispersan los datos. Un ejemplo de variable nominal es la comuna de residencia o el género. 
+
+1. **Ordinal**: para variables categóricas o cualitativas. Los números asignados permiten dividir los datos en diferentes grupos y, a la vez, establecer un *orden no exacto* entre ellos. Ello quiere decir que un número más bajo (alto) indicará una menor (mayor) presencia del atributo. Sin embargo, los números no indican distancias concretas: por ejemplo, la distancia entre las categorías 1 y 2 **no necesariamente** es la misma que aquella que existe entre las categorías 2 y 3. Para ilustrarlo más claramente, las escalas Likert representan un ejemplo clásico de variables ordinales: el/la informante puede declarar un mayor o menor grado de acuerdo con las medidas adoptadas por el gobierno durante la pandemia. Sin embargo, no sabemos **cuán más de acuerdo se encuentran**: sólo sabemos que se encuentran más o menos de acuerdo con aquellas medidas en relación con otro/a informante.
+
+1. **Intervalar**: para variables numéricas o cuantitativas. Aquí es posible clasificar y ordenar los datos, estableciendo además distancias concretas entre un valor y otro. Por ello, las variables intervalares nos permiten **ejecutar operaciones aritméticas** y, por lo tanto, es posible calcular estadísticos como la media de una distribución. Un ejemplo de variable intervalar puede ser la cantidad de jugadoras/es presentes en una cancha de basketball durante un partido. 
+
+1. **De razón**: para variables numéricas o cuantitativas. La mayor diferencia con las variables de nivel intervalar es que **incluyen un cero absoluto** que indica **ausencia del atributo**. En el caso anterior, podríamos señalar que, teóricamente, no puede haber cero jugadoras/es en una cancha de basketball durante un partido, pues de ser así no estaría ocurriendo el partido. Sin embargo, sí podemos decir que una persona propietaria de un emprendimiento tiene 2, 4 o 0 trabajadores/as contratados/as. En este caso, el 0 indicaría que *no ha contratado a ningún/a trabajador/a*, y la distancia entre 0 y 2 trabajadores/as es la misma que la que existe entre 2 y 4 trabajadores/as (es decir, una diferencia de 2 trabajadores/as para cada caso).
+
+En la sección **Recursos** de la página web del curso podrán encontrar un artículo explicativo referente a los [tipos de variables](https://learn-r-uah.netlify.app/resource/r-datatypes-example/), donde se presentan además algunos ejemplos para cada una de ellas. 
+
+### b) ¿Qué tipos de datos podemos encontrarnos en R?
+
+Para responder a esta pregunta ¡metamos las manos en la masa! (o en los datos). Como se señaló anteriormente, trabajaremos con la Encuesta Suplementaria de Ingresos en su versión 2020.
+
+```{r packages}
+pacman::p_load(sjPlot, sjmisc)
+```
+
+
+```{r read_data, include=FALSE}
+data <- readRDS(url("https://github.com/learn-R/www-learn-R-uah/raw/master/content/example/input/data/esi_proc.rds"))
+```
+
+Estos datos ya han sido procesados para ajustarse a los contenidos del curso. Por ello, contamos con 5 variables que permitirán ilustrar los contenidos que atañen a este práctico
+
+```{r data_summary}
+view_df(data, encoding = "UTF-8")
+```
+
+¡Vamos a revisar cada una de ellas!
+
+#### I) character
+
+Los datos `character` están directamente asociados a las variables cualitativas (o categóricas). En general, estos datos incluyen palabras, aunque también pueden incorporar números que no representen una variable numérica, como puede ser el RUT de los/as informantes: es un número que no denota una distancia clara entre la inscripción de una persona a la de otra. Suelen ser utilizadas para variables de texto abierto, como es el caso de la variable **a6_otro**, que detalla otras razones por las cuales las/os informantes declararon ausentarse al trabajo durante la semana pasada, más allá de aquellas especificadas en las alternativas de respuesta de la pregunta original. 
+
+Para saber cuál es el tipo de una variable en específico, utilizaremos la función `class()` del paquete base de R
+
+```{r class_chr, echo=TRUE}
+class(data$a6_otro)
+```
+
+Si deseamos trabajar con texto abierto, o manipular ese texto ¡debemos trabajar con character! sin embargo, estas variables no tienden a ser las mejores a la hora de presentar nuestros resultados, entre otras razones, porque no nos permiten especificar un orden distinto al alfabético. Para solucionarlo, tenemos las variables de tipo **Factor**
+
+#### II) Factor
+
+Las variables de tipo `Factor` son las ideales a la hora de trabajar con variables de tipo nominal u ordinal. Esto se debe a dos motivos: en primer lugar, su comptabilidad con librerías como `sjPlot`, `sjmisc` o `ggplot2`, que nos permiten presentar de manera cómoda estos datos; así como su compatibilidad con funciones dedicadas a la generación de distintos modelos estadísticos, como modelos de análisis de clases latentes o de regresión. En segundo término, porque cabe la posibilidad de **establecer un orden (distinto al alfabético)** entre las categorías de la variable, lo cual es *fundamental* si trabajamos con variables ordinales, como el **nivel educacional** de las/os informantes
+
+```{r class_factor, echo = T}
+class(data$nivel)
+```
+
+```{r frq_factor, echo = F}
+frq(data$nivel)
+```
+
+¿Cómo podemos ordenar los factores de una variable de este tipo? ¡Calma! en el práctico 6 profundizaremos como corresponde en la transformación de variables. 
+
+#### III) numeric
+
+Como su nombre lo indica, este tipo de variables nos permiten trabajar con variables con un nivel de medición cuantitativo 
+
+```{r class_numeric, echo = T}
+class(data$ingresos)
+```
+
+Mientras R arroja un error al, por ejemplo, intentar calcular el promedio de nivel educacional
+
+```{r mean_factor, echo=TRUE}
+mean(data$nivel)
+```
+
+¡Si podemos calcular la media de ingresos por sueldos y salarios!
+
+```{r mean_num, echo = T}
+mean(data$ingresos)
+```
+
+¡Mucho cuidado! muchas veces, los datos incluyen variables de tipo `numeric` que, teóricamente, no son variables numéricas (por ejemplo, variables donde 1 == Si, y 2 == No). Por ello, es fundamental que **revisen detalladamente la documentación anexa** de sus datos, a modo de determinar cuáles variables corresponden su tipo de dato con su nivel de medición, y cuáles no. 
+
+#### IV) dbl + lbl (números etiquetados)
+
+Es bastante usual (como veremos en el siguiente práctico) que, aunque estemos trabajando en lenguaje R, los datos que emplearemos estén en formato SPSS (.sav) o Stata (.dta). En ambos casos, los datos (sobre todo las variables categóricas) presentan una estructura de números etiquetados, donde el valor principal de la variable es un número, pero el cual presenta una etiqueta en palabras que identifica a qué refiere cada una de las categorías de la variable. En general, cuando preguntamos sobre la clase de una variable dbl+lbl, obtendremos algo así:
+
+```{r class_dbllbl, echo = T}
+class(data$a6)
+```
+
+```{r frq_dbllbl, echo = F}
+frq(data$a6)
+```
+
+En este caso, cada número se asocia con una razón por la cual el/la informante se ausentó del trabajo la semana anterior. Por supuesto, es una variable ordinal. 
+
+La mayor parte de las veces, sobre todo por la compatibilidad con librerías de representación gráfica, buscaremos que nuestros números etiquetados se conviertan en factores ¡el práctico 6 se encargará de profundizar en ello!
+
+#### V) logical
+
+¡El último tipo de dato! Los valores lógicos (`logical`) son bastante frecuentes al estar trabajando con datos
+
+```{r class_logical, echo = T}
+class(data$afp)
+```
+
+```{r frq_logical, echo = F}
+frq(data$afp)
+```
+
+Los datos de clase `logical` presentan tres posibles valores: `TRUE` (verdadero), `FALSE` (falso) y `NA` (valor nulo, ausencia de dato). En este caso, las personas con valor `TRUE` están empleados por alguien que si paga cotizaciones en previsión, mientras que las personas con valor `FALSE` no tienen tal característica
+
+## 4. Resumen
+
+¡Aprendimos los posibles tipos de datos con los cuales nos enfrentaremos a trabajar en R! Como resumen:
+
+- Variables cualitativas: `character`, `Factor` o `dbl + lbl`
+- Variables cuantitativas: `numeric`
+- Valores lógicos: `logical`
+
+Recuerden que es fundamental que se apoyen en la **documentación anexa** a la hora de trabajar con datos ¡así evitarán calcular el promedio de las religiones que declaran las/os informantes!
+
+## 5. Recursos
+
+- [RMarkdown en Ciencia de Datos - Hadley Whickham](https://es.r4ds.hadley.nz/r-markdown.html)
+- [R Markdown](https://rmarkdown.rstudio.com/) 
+- [Tutoriales Markdown](https://rmarkdown.rstudio.com/lesson-1.html) 
+- [cheatsheets](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+- Para practicar ir a [Tutorial de Markdown](https://www.markdowntutorial.com/es/)
+
+## 6. Reporte de progreso
+
+¡Recuerda rellenar tu reporte de progreso! En [https://learn-r.formr.org/](https://learn-r.formr.org/). Te llegó un código único a tu correo electrónico. Mediante él debes acceder para actualizar tu estado de avance del curso.
