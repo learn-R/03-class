@@ -12,6 +12,10 @@ El objetivo de este práctico es presentar una introducción a los tipos de dato
 
 En este práctico trabajaremos con datos de la **Encuesta Suplementaria de Ingresos (*ESI*)** desarrollada por el **Instituto Nacional de Estadísticas** en el año 2020. Esta es "un módulo complementario que se aplica dentro de la Encuesta Nacional de Empleo (ENE) (...) Su objetivo principal es caracterizar los ingresos laborales de las personas que son clasificadas como ocupadas en la ENE y otras fuentes de ingresos de los hogares", contando con un diseño muestral probabilístico, estratificado y bietápico. Pueden encontrar más información [aquí](https://www.ine.cl/estadisticas/sociales/ingresos-y-gastos/encuesta-suplementaria-de-ingresos). 
 
+Recuerden que los archivos asociados a este práctico se pueden descargar aquí:
+
+- [<i class="fas fa-file-archive"></i> `03-class.zip`](https://github.com/learn-R/03-class-datatypes-/raw/main/03-clase.zip) 
+
 ## 1. Tipos de datos 
 
 ### a) ¿Qué son?
@@ -46,7 +50,7 @@ data <- readRDS(url("https://github.com/learn-R/www-learn-R-uah/raw/master/conte
 Estos datos ya han sido procesados para ajustarse a los contenidos del curso. Por ello, contamos con 5 variables que permitirán ilustrar los contenidos que atañen a este práctico
 
 ```{r data_summary}
-view_df(data, encoding = "UTF-8")
+view_df(data, encoding = "LATIN1")
 ```
 
 ¡Vamos a revisar cada una de ellas!
@@ -146,7 +150,3 @@ Recuerden que es fundamental que se apoyen en la **documentación anexa** a la h
 - [Tutoriales Markdown](https://rmarkdown.rstudio.com/lesson-1.html) 
 - [cheatsheets](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
 - Para practicar ir a [Tutorial de Markdown](https://www.markdowntutorial.com/es/)
-
-## 6. Reporte de progreso
-
-¡Recuerda rellenar tu reporte de progreso! En [https://learn-r.formr.org/](https://learn-r.formr.org/). Te llegó un código único a tu correo electrónico. Mediante él debes acceder para actualizar tu estado de avance del curso.
