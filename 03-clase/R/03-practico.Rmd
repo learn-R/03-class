@@ -44,7 +44,7 @@ pacman::p_load(sjPlot, sjmisc)
 
 
 ```{r read_data, include=FALSE}
-data <- readRDS(url("https://github.com/learn-R/www-learn-R-uah/raw/master/content/example/input/data/esi_proc.rds"))
+data <- readRDS("output/data/esi_proc.rds")
 ```
 
 Estos datos ya han sido procesados para ajustarse a los contenidos del curso. Por ello, contamos con 5 variables que permitirán ilustrar los contenidos que atañen a este práctico

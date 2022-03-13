@@ -8,7 +8,7 @@ pacman::p_load(sjPlot, sjmisc)
 
 # Cargar datos ------------------------------------------------------------
 
-data <- readRDS(url("https://github.com/learn-R/www-learn-R-uah/raw/master/content/example/input/data/esi_proc.rds"))
+data <- readRDS("output/data/esi_proc.rds")
 
 # Explorar datos ----------------------------------------------------------
 
